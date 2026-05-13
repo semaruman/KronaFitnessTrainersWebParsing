@@ -1,9 +1,10 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System.Xml.Linq; // Работаем с LINQ to XML
-using HtmlAgilityPack;
-using System.Text.RegularExpressions;
+﻿using HtmlAgilityPack;
 using KronaFitnessTrainersWebParsing.Models;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using System;
+using System.Text.RegularExpressions;
+using System.Xml.Linq; // Работаем с LINQ to XML
 
 
 public class Program
@@ -49,10 +50,15 @@ public class Program
         }
 
         //PrintTrainers(trainers);
-
-        TrainerParsing(trainers[0]);
-        //Console.WriteLine(string.Join("\n", trainers[0].Specializations));
-        Console.WriteLine(trainers[0].Education);
+        for (int i=0; i< trainers.Count; i++)
+        {
+            TrainerParsing(trainers[i]);
+            Console.WriteLine(string.Join("\n", trainers[i].Specializations));
+            Console.WriteLine("\n\n\n");
+        }
+        //TrainerParsing(trainers[1]);
+        //Console.WriteLine(string.Join("\n", trainers[1].Specializations));
+        //Console.WriteLine(trainers[1].Education);
     }
     public static XDocument GetPageAsXDocument(string url)
     {
@@ -63,7 +69,7 @@ public class Program
         using (IWebDriver driver = new ChromeDriver(options))
         {
             driver.Navigate().GoToUrl(url);
-            Thread.Sleep(3000);
+            //Thread.Sleep(10);
 
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(driver.PageSource);
@@ -89,7 +95,7 @@ public class Program
 
 
         trainer.Specializations = GetTrainerSpecialisationList(document);
-        trainer.Education = GetTrainerEducation(document);
+        //trainer.Education = GetTrainerEducation(document);
     }
     
     public static List<string> GetTrainerSpecialisationList(XDocument document)
@@ -103,7 +109,7 @@ public class Program
                 return specialis;
             })
             .First()
-            .Split("— ")
+            .Split(new string[] { "— ", ", " }, StringSplitOptions.RemoveEmptyEntries)
             .ToList()
             ;
 
