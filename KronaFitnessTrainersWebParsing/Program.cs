@@ -51,7 +51,8 @@ public class Program
         //PrintTrainers(trainers);
 
         TrainerParsing(trainers[0]);
-        Console.WriteLine(string.Join("\n", trainers[0].Specializations));
+        //Console.WriteLine(string.Join("\n", trainers[0].Specializations));
+        Console.WriteLine(trainers[0].Education);
     }
     public static XDocument GetPageAsXDocument(string url)
     {
@@ -87,10 +88,11 @@ public class Program
 
 
 
-        trainer.Specializations = (GetTrainerSpecialisation(document));
+        trainer.Specializations = GetTrainerSpecialisationList(document);
+        trainer.Education = GetTrainerEducation(document);
     }
     
-    public static List<string> GetTrainerSpecialisation(XDocument document)
+    public static List<string> GetTrainerSpecialisationList(XDocument document)
     {
         var specialisations = document.Descendants()
             //если элемент имеет класс "et_pb_text_inner" и включает в себя h1
@@ -106,5 +108,23 @@ public class Program
             ;
 
         return specialisations;
+    }
+
+    public static string GetTrainerEducation(XDocument document)
+    {
+        var education = document.Descendants()
+            //если элемент имеет класс "et_pb_text_inner" и включает в себя h1
+            .Where(e => e.Attribute("class")?.Value == "et_pb_text_inner" && e.Elements().Any(ee => ee.Name.LocalName == "strong"))
+            .Select(e =>
+            {
+                string educ = e.Elements().First().Value;
+                return educ;
+            })
+            .First()
+            .Split("Образование — ")
+            [1]
+            ;
+
+        return education;
     }
 }
