@@ -12,9 +12,9 @@ namespace KronaFitnessTrainersWebParsing.Models
 
         public string Education {  get; set; }
 
-        public List<string> Specializations { get; set; }
+        public List<string> Specializations { get; set; } = new List<string>();
 
-        public List<string> AdditionalEducations { get; set; }
+        public List<string> AdditionalEducations { get; set; } = new List<string>();
 
         public int TrainingExperienceYears { get; set; }
 

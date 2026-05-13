@@ -48,7 +48,10 @@ public class Program
             trainers[i].InfoHref = trainerHrefs[i];
         }
 
-        PrintTrainers(trainers);
+        //PrintTrainers(trainers);
+
+        TrainerParsing(trainers[0]);
+        Console.WriteLine(string.Join("\n", trainers[0].Specializations));
     }
     public static XDocument GetPageAsXDocument(string url)
     {
@@ -64,7 +67,7 @@ public class Program
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(driver.PageSource);
             htmlDoc.OptionOutputAsXml = true;
-            Console.WriteLine(string.Join("; ", htmlDoc));
+
             // Используем XDocument.Parse вместо XmlDocument.LoadXml
             return XDocument.Parse(htmlDoc.DocumentNode.OuterHtml);
         }
@@ -74,7 +77,34 @@ public class Program
     {
         foreach (var trainer in trainers)
         {
-            Console.WriteLine($"{trainer.Name, 25}\t|\t{trainer.InfoHref}");
+            Console.WriteLine($"{trainer.Name,25}\t|\t{trainer.InfoHref}");
         }
+    }
+
+    public static void TrainerParsing(Trainer trainer)
+    {
+        var document = GetPageAsXDocument(trainer.InfoHref);
+
+
+
+        trainer.Specializations = (GetTrainerSpecialisation(document));
+    }
+    
+    public static List<string> GetTrainerSpecialisation(XDocument document)
+    {
+        var specialisations = document.Descendants()
+            //если элемент имеет класс "et_pb_text_inner" и включает в себя h1
+            .Where(e => e.Attribute("class")?.Value == "et_pb_text_inner" && e.Elements().Any(ee => ee.Name.LocalName == "h1"))
+            .Select(e =>
+            {
+                string specialis = e.Elements().First(ee => ee.Name.LocalName == "h5").Value;
+                return specialis;
+            })
+            .First()
+            .Split("— ")
+            .ToList()
+            ;
+
+        return specialisations;
     }
 }
