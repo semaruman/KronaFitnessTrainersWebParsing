@@ -58,6 +58,7 @@ public class Program
             Console.WriteLine(string.Join("\n", trainers[i].Specializations));
             Console.WriteLine();
             Console.WriteLine($"Опыт тренерства: {trainers[i].TrainingExperienceYears}");
+            Console.WriteLine($"Опыт фитнеса: {trainers[i].FitnessExperience}");
             Console.WriteLine("\n\n\n");
         }
         //TrainerParsing(trainers[1]);
@@ -101,6 +102,7 @@ public class Program
         trainer.Specializations = GetTrainerSpecialisationList(document);
         //trainer.Education = GetTrainerEducation(document);
         trainer.TrainingExperienceYears = GetTrainingExperienceYears(document);
+        trainer.FitnessExperience = GetFitnessExperienceYears(document);
     }
     
     public static List<string> GetTrainerSpecialisationList(XDocument document)
@@ -151,8 +153,8 @@ public class Program
 
         string expString = currentElement.Elements().First().Value;
         string pattern = @"\d+";
-        Console.WriteLine(expString);
-        Console.WriteLine(Regex.Match(expString, pattern).Value);
+        //Console.WriteLine(expString);
+        //Console.WriteLine(Regex.Match(expString, pattern).Value);
         var exp = Convert.ToInt32(Regex.Match(expString, pattern).Value);
         if (exp > 1000)
         {
@@ -164,6 +166,28 @@ public class Program
         }
     }
 
-     }
+    public static int GetFitnessExperienceYears(XDocument document)
+    {
+        var currentElement = document.Descendants()
+            .Where(e => e.Attribute("class")?.Value == "et_pb_text_inner")
+            .Skip(1)
+            //если элемент имеет класс "et_pb_text_inner" и включает в себя strong
+            .First(e => e.Elements().Last().Name.LocalName == "p")
+            .Elements()
+            .Last();
+
+        string expString = currentElement.Elements().Last().Value;
+        string pattern = @"\d+";
+        //Console.WriteLine(expString);
+        //Console.WriteLine(Regex.Match(expString, pattern).Value);
+        var exp = Convert.ToInt32(Regex.Match(expString, pattern).Value);
+        if (exp > 1000)
+        {
+            return DateTime.Now.Year - exp;
+        }
+        else
+        {
+            return exp;
+        }
     }
 }
